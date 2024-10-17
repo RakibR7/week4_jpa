@@ -1,5 +1,6 @@
 package ie.atu.week4.jpa;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +13,16 @@ public class ProductController {
     private List<Product> productList = new ArrayList<>();
     private ProductService productservice;
     public ProductController(ProductService productservice) {
-        //productList.add(new Product("Tv", "A big tv", 500, 100));
-        //productList.add(new Product("Radio", "A small radio", 100, 101));
         this.productservice = productservice;
     }
-    @GetMapping("/getProducts")
+    @GetMapping("/get")
     public List<Product> getProducts() {
         return productList;
     }
 
-    @PostMapping("/addProduct")
-    public ResponseEntity<List> addProduct(@RequestBody Product product) {
-       productList = productservice.add(product);
-
-        //productList.add(product);
+    @PostMapping("/add")
+    public ResponseEntity<List> addProduct(@Valid @RequestBody Product product) {
+        productList = productservice.addProduct(product);
         return ResponseEntity.ok(productList);
     }
 
@@ -38,7 +35,7 @@ public class ProductController {
         return null;
     }
 
-    @PutMapping("/updateProduct/{id}")
+    @PutMapping("/updated/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
         Product existingProduct = findProductById(id);
 
@@ -52,15 +49,9 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/deleteProduct/{id}")
-    public ResponseEntity<List<Product>> deleteProduct(@PathVariable int id) {
-        Product existingProduct = findProductById(id);
-
-        if (existingProduct != null) {
-            productList.remove(existingProduct);
-            return ResponseEntity.ok(productList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("/delete/{id}")
+    public <product> Object deleteProduct(@PathVariable long id) {
+        productservice.deleteProduct(id);
+        return("Product Deleted\n");
     }
 }
