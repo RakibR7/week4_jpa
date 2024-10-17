@@ -2,7 +2,6 @@ package ie.atu.week4.jpa;
 
 
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +9,7 @@ import java.util.List;
 public class ProductService {
     private ProductRepository productRepository;
 
-    private List<Product> productList = new ArrayList<>();
+    //private List<Product> productList = new ArrayList<>();
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -21,27 +20,21 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    private Product findProductById(Long id) {
-        for (Product product : productList) {
-            if (product.getProductCode() == id) {
-                return product;
-            }
+    public Product findProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public Product updateProduct(Long id, Product updatedProduct) {
+        if (productRepository.existsById(id)) {
+            updatedProduct.setId(id);
+            return productRepository.save(updatedProduct);
         }
         return null;
     }
 
-    public List<Product> updateProduct(Long id, Product product){
-        if(productRepository.existsById(id)){
-            product.setId(id);
-            productRepository.save(product);
-        }
-        return productRepository.findAll();
-    }
-
-    public List<Product> deleteProduct(Long id){
-        if(productRepository.existsById(id)) {
+    public void deleteProduct(Long id) {
+        if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
         }
-        return productRepository.findAll();
     }
 }

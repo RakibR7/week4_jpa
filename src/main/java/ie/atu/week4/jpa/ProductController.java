@@ -3,7 +3,6 @@ package ie.atu.week4.jpa;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,22 +35,26 @@ public class ProductController {
     }
 
     @PutMapping("/updated/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
-        Product existingProduct = findProductById(id);
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product updatedProduct) {
+        Product existingProduct = productservice.findProductById(id);
 
         if (existingProduct != null) {
-            existingProduct.setProductName(updatedProduct.getProductName());
-            existingProduct.setProductDescription(updatedProduct.getProductDescription());
-            existingProduct.setProductPrice(updatedProduct.getProductPrice());
-            return ResponseEntity.ok(existingProduct);
+            productservice.updateProduct(id, updatedProduct);
+            return ResponseEntity.ok(updatedProduct);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
+
     @DeleteMapping("/delete/{id}")
-    public <product> Object deleteProduct(@PathVariable long id) {
-        productservice.deleteProduct(id);
-        return("Product Deleted\n");
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+        if (productservice.findProductById(id) != null) {
+            productservice.deleteProduct(id);
+            return ResponseEntity.ok("Product Deleted\n");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 }
