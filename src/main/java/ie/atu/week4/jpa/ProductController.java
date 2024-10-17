@@ -1,8 +1,8 @@
 package ie.atu.week4.jpa;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,20 +12,16 @@ public class ProductController {
     private List<Product> productList = new ArrayList<>();
     private ProductService productservice;
     public ProductController(ProductService productservice) {
-        //productList.add(new Product("Tv", "A big tv", 500, 100));
-        //productList.add(new Product("Radio", "A small radio", 100, 101));
         this.productservice = productservice;
     }
-    @GetMapping("/getProducts")
+    @GetMapping("/get")
     public List<Product> getProducts() {
         return productList;
     }
 
-    @PostMapping("/addProduct")
-    public ResponseEntity<List> addProduct(@RequestBody Product product) {
-       productList = productservice.add(product);
-
-        //productList.add(product);
+    @PostMapping("/add")
+    public ResponseEntity<List> addProduct(@Valid @RequestBody Product product) {
+        productList = productservice.addProduct(product);
         return ResponseEntity.ok(productList);
     }
 
@@ -38,29 +34,27 @@ public class ProductController {
         return null;
     }
 
-    @PutMapping("/updateProduct/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
-        Product existingProduct = findProductById(id);
+    @PutMapping("/updated/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product updatedProduct) {
+        Product existingProduct = productservice.findProductById(id);
 
         if (existingProduct != null) {
-            existingProduct.setProductName(updatedProduct.getProductName());
-            existingProduct.setProductDescription(updatedProduct.getProductDescription());
-            existingProduct.setProductPrice(updatedProduct.getProductPrice());
-            return ResponseEntity.ok(existingProduct);
+            productservice.updateProduct(id, updatedProduct);
+            return ResponseEntity.ok(updatedProduct);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @DeleteMapping("/deleteProduct/{id}")
-    public ResponseEntity<List<Product>> deleteProduct(@PathVariable int id) {
-        Product existingProduct = findProductById(id);
 
-        if (existingProduct != null) {
-            productList.remove(existingProduct);
-            return ResponseEntity.ok(productList);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+        if (productservice.findProductById(id) != null) {
+            productservice.deleteProduct(id);
+            return ResponseEntity.ok("Product Deleted\n");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 }
